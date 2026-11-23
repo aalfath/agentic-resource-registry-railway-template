@@ -43,7 +43,9 @@ mkdir -p "$JWT_KEY_DIR" "$MIGRATION_ARTIFACT_ROOT"
 chown -R 1001:1001 /data
 chmod 0700 "$JWT_KEY_DIR"
 
-as_app() { setpriv --reuid=1001 --regid=1001 --clear-groups "$@"; }
+# setpriv keeps root's environment; HOME must be the app user's, or asyncpg
+# fails with "Permission denied" probing /root/.postgresql for client certs.
+as_app() { HOME=/app setpriv --reuid=1001 --regid=1001 --clear-groups "$@"; }
 PY=/app/.venv/bin/python
 cd /app
 
