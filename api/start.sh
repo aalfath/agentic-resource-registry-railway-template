@@ -61,7 +61,7 @@ until as_app /app/entrypoint.sh; do
 done
 
 log "checking the first administrator and deployment URLs"
-as_app "$PY" /railway/bootstrap.py
+PYTHONPATH=/app as_app "$PY" /railway/bootstrap.py
 
 log "starting the API on port $PORT and the background worker"
 as_app "$PY" -m uvicorn main:app --host :: --port "$PORT" &
