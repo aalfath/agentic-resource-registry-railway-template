@@ -1,0 +1,11 @@
+<clickhouse>
+    <!-- memory.xml (from upstream) already listens on :: and 0.0.0.0 with listen_try,
+         which covers Railway's IPv6 private network. -->
+    <!-- Console logs only, so Railway shows them and no log files grow on the volume. -->
+    <logger>
+        <level>warning</level>
+        <log remove="remove"/>
+        <errorlog remove="remove"/>
+        <console>1</console>
+    </logger>
+</clickhouse>

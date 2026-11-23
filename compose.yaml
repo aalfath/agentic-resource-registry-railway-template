@@ -1,0 +1,46 @@
+# Local test only (Railway doesn't read this). Mirrors the template: same
+# Dockerfiles, same variables, Postgres and Redis in place of Railway's.
+#   ADMIN_EMAIL=you@example.com ADMIN_PASSWORD=... SECRET_KEY=... CLICKHOUSE_PASSWORD=... \
+#     docker compose up --build
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: railway
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-localtest}
+    volumes: [pgdata:/var/lib/postgresql]
+  redis:
+    image: redis:8-alpine
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-localtest}"]
+  clickhouse:
+    build: ./clickhouse
+    environment:
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:?set CLICKHOUSE_PASSWORD}
+    volumes: [chdata:/var/lib/clickhouse]
+  api:
+    build: ./api
+    environment:
+      PORT: "8000"
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-localtest}@postgres:5432/railway
+      REDIS_URL: redis://default:${REDIS_PASSWORD:-localtest}@redis:6379
+      CLICKHOUSE_URL: clickhouse://default:${CLICKHOUSE_PASSWORD}@clickhouse:8123/observal
+      SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY (32+ characters)}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?set ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD}
+      PUBLIC_URL: http://localhost:8080
+    volumes: [apidata:/data]
+    restart: on-failure
+    depends_on: [postgres, redis, clickhouse]
+  web:
+    build: ./web
+    environment:
+      PORT: "8080"
+      API_HOST: api
+      API_PORT: "8000"
+    ports: ["8080:8080"]
+    depends_on: [api]
+volumes:
+  pgdata:
+  chdata:
+  apidata:
