@@ -1,3 +1,5 @@
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template/agentic-resource-registry?utm_medium=integration&utm_source=button&utm_campaign=agentic-resource-registry)
+
 # Deploy and Host Agentic Resource Registry on Railway
 
 [Agentic Resource Registry](https://github.com/AgenticResourceRegistry/AgenticResourceRegistry) (formerly Observal) is a self-hosted, Apache-2.0 registry where a team shares and discovers coding agent resources: skills, agent files, MCP servers, hooks, prompts and sandboxes. It renders the right config for Claude Code, Cursor, Kiro, Codex, Pi, Copilot and OpenCode, and shows how each resource is used. This template runs version 1.17.1.
