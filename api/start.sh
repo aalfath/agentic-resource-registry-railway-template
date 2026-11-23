@@ -64,7 +64,7 @@ log "checking the first administrator and deployment URLs"
 PYTHONPATH=/app as_app "$PY" /railway/bootstrap.py
 
 log "starting the API on port $PORT and the background worker"
-as_app "$PY" -m uvicorn main:app --host :: --port "$PORT" &
+PYTHONPATH=/app as_app "$PY" /railway/serve.py &
 api_pid=$!
 as_app "$PY" -c "import asyncio; asyncio.set_event_loop(asyncio.new_event_loop()); from arq import run_worker; from worker import WorkerSettings; run_worker(WorkerSettings)" &
 worker_pid=$!
