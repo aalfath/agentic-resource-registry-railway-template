@@ -24,7 +24,11 @@ from models.user import User, UserRole
 from services.username_generator import generate_unique_username
 
 UPSTREAM_TRUSTED = "172.16.0.0/12,10.0.0.0/8,192.168.0.0/16,127.0.0.1"
-RAILWAY_TRUSTED = UPSTREAM_TRUSTED + ",fd00::/8"
+# The API listens on a dual-stack socket, so IPv4 peers on Railway's private
+# network arrive as IPv4-mapped IPv6 (::ffff:10.x.x.x); fd00::/8 is its IPv6 range.
+RAILWAY_TRUSTED = UPSTREAM_TRUSTED + ",::ffff:10.0.0.0/104,::ffff:172.16.0.0/108,::ffff:192.168.0.0/112,::ffff:127.0.0.1,::1,fd00::/8"
+# Values this script wrote in earlier template versions: replaced, admin edits kept.
+OUR_OLD_TRUSTED = {UPSTREAM_TRUSTED + ",fd00::/8"}
 MARKER = "_railway.auto_public_url"
 
 
@@ -79,8 +83,8 @@ async def main() -> int:
             await put(db, MARKER, public_url)
 
         row = await get_row(db, "security.trusted_proxy_ips")
-        if row is None:
-            db.add(EnterpriseConfig(key="security.trusted_proxy_ips", value=RAILWAY_TRUSTED))
+        if row is None or row.value in OUR_OLD_TRUSTED:
+            await put(db, "security.trusted_proxy_ips", RAILWAY_TRUSTED)
             changed_keys.append("security.trusted_proxy_ips")
 
         await db.commit()
